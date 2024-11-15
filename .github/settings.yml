@@ -2,6 +2,6 @@
 _extends: .github
 repository:
   name: aws-eks-alb-controller-ingress-group
-  description: This component provisions a Kubernetes Service that creates an ALB for a specific [IngressGroup]
+  description: This component provisions a Kubernetes Service that creates an ALB for a specific IngressGroup
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
