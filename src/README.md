@@ -6,7 +6,7 @@ tags:
   - provider/helm
 ---
 
-# Component: `eks`
+# Component: `eks-alb-controller-ingress-group`
 
 This component provisions a Kubernetes Service that creates an ALB for a specific [IngressGroup].
 
