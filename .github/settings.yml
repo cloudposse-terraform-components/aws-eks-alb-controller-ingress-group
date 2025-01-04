@@ -5,5 +5,3 @@ repository:
   description: This component provisions a Kubernetes Service that creates an ALB for a specific IngressGroup
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
-
-
