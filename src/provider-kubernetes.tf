@@ -89,9 +89,8 @@ locals {
     "--profile", var.kube_exec_auth_aws_profile
   ] : []
 
-  kube_exec_auth_role_arn = coalesce(var.kube_exec_auth_role_arn, module.iam_roles.terraform_role_arn)
   exec_role = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled ? [
-    "--role-arn", local.kube_exec_auth_role_arn
+    "--role-arn", coalesce(var.kube_exec_auth_role_arn, module.iam_roles.terraform_role_arn)
   ] : []
 
   certificate_authority_data = module.eks.outputs.eks_cluster_certificate_authority_data

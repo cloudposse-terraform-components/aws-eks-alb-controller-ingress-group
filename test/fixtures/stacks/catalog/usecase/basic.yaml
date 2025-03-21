@@ -1,0 +1,18 @@
+components:
+  terraform:
+    eks/alb-controller-ingress-group/basic:
+      metadata:
+        component: eks/alb-controller-ingress-group
+      vars:
+        enabled: true
+        # change the name of the Ingress Group
+        name: alb-controller-ingress-group
+        dns_delegated_environment_name: ue2
+        kubernetes_namespace: default
+        kube_exec_auth_role_arn_enabled: false
+        default_annotations:
+          alb.ingress.kubernetes.io/scheme: internet-facing
+          alb.ingress.kubernetes.io/target-type: ip
+          kubernetes.io/ingress.class: default
+          alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+          alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06

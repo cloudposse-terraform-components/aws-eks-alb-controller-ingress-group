@@ -1,0 +1,10 @@
+components:
+  terraform:
+    eks/alb-controller-ingress-group/disabled:
+      metadata:
+        component: eks/alb-controller-ingress-group
+      vars:
+        enabled: false
+        kubernetes_namespace: default
+        dns_delegated_environment_name: ue2
+        kube_exec_auth_role_arn_enabled: false
