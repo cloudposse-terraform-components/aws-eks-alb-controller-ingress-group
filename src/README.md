@@ -8,11 +8,12 @@ tags:
 
 # Component: `eks-alb-controller-ingress-group`
 
-This component provisions a Kubernetes Service that creates an ALB for a specific [IngressGroup].
+This component provisions a Kubernetes Service that creates an AWS Application Load Balancer (ALB)
+for a specific IngressGroup (https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#ingressgroup).
 
-An [IngressGroup] is a feature of the [alb-controller] which allows multiple Kubernetes Ingresses to share the same
-Application Load Balancer.
-
+An IngressGroup is a feature of the AWS Load Balancer Controller
+(https://github.com/kubernetes-sigs/aws-load-balancer-controller) which allows multiple Kubernetes Ingresses to
+share the same Application Load Balancer.
 ## Usage
 
 **Stack Level**: Regional
@@ -24,8 +25,10 @@ import:
   - catalog/eks/alb-controller-ingress-group
 ```
 
-The default catalog values `e.g. stacks/catalog/eks/alb-controller-ingress-group.yaml` will create a Kubernetes Service
-in the `default` namespace with an [IngressGroup] named `alb-controller-ingress-group`.
+The default catalog values (e.g. `stacks/catalog/eks/alb-controller-ingress-group.yaml`) will create a Kubernetes
+Service in the `default` namespace with an IngressGroup
+(https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#ingressgroup)
+named `alb-controller-ingress-group`.
 
 ```yaml
 components:
@@ -42,8 +45,8 @@ components:
         name: alb-controller-ingress-group
 ```
 
-<!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -148,18 +151,21 @@ components:
 | <a name="output_load_balancer_name"></a> [load\_balancer\_name](#output\_load\_balancer\_name) | The name of the load balancer created by the Ingress |
 | <a name="output_load_balancer_scheme"></a> [load\_balancer\_scheme](#output\_load\_balancer\_scheme) | The value of the `alb.ingress.kubernetes.io/scheme` annotation of the Kubernetes Ingress |
 | <a name="output_message_body_length"></a> [message\_body\_length](#output\_message\_body\_length) | The length of the message body to ensure it's lower than the maximum limit |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
+
+
 
 ## References
 
-- [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/eks/alb-controller-ingress-group) -
-  Cloud Posse's upstream component
+
+- [cloudposse-terraform-components](https://github.com/orgs/cloudposse-terraform-components/repositories) - Cloud Posse's upstream component
+
+- [IngressGroup](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#ingressgroup) - 
+
+- [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller) - 
 
 
 
-[ingressgroup]:
-  https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/#ingressgroup
-[alb-controller]: https://github.com/kubernetes-sigs/aws-load-balancer-controller
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-eks-alb-controller-ingress-group&utm_content=)
+
