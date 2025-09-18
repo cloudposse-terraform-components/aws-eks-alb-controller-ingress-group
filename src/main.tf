@@ -3,7 +3,7 @@ locals {
 
   create_namespace = local.enabled && var.create_namespace
 
-  kubernetes_namespace = local.create_namespace ? join("", kubernetes_namespace.default.*.id) : var.kubernetes_namespace
+  kubernetes_namespace = local.create_namespace ? join("", kubernetes_namespace.default[*].id) : var.kubernetes_namespace
 
   kubernetes_service_enabled = local.enabled && var.kubernetes_service_enabled
 
@@ -24,17 +24,20 @@ locals {
 
   ingress_controller_group_name = try(coalesce(var.alb_group_name, module.this.name), module.this.name)
 
-  kube_tags = join(",", [for k, v in module.this.tags : "${k}=${v}"])
+  # Exclude "Name" tag to avoid conflicts with ALB controller's IngressClassParams
+  # The ALB controller applies its own "Name" tag via IngressClassParams, and having
+  # conflicting "Name" tags prevents the ALB from being created/updated properly
+  kube_tags = join(",", [for k, v in { for key, value in module.this.tags : key => value if key != "Name" } : "${k}=${v}"])
 
   default_rule = "default-404-rule"
 
   message_body = templatefile(var.fixed_response_template, var.fixed_response_vars)
 
   # for outputs
-  annotations           = try(kubernetes_ingress_v1.default[0].metadata.0.annotations, null)
-  group_name_annotation = try(lookup(kubernetes_ingress_v1.default[0].metadata.0.annotations, "alb.ingress.kubernetes.io/group.name", null), null)
-  scheme_annotation     = try(lookup(kubernetes_ingress_v1.default[0].metadata.0.annotations, "alb.ingress.kubernetes.io/scheme", null), null)
-  class_annotation      = try(lookup(kubernetes_ingress_v1.default[0].metadata.0.annotations, "kubernetes.io/ingress.class", null), null)
+  annotations           = try(kubernetes_ingress_v1.default[0].metadata[0].annotations, null)
+  group_name_annotation = try(lookup(kubernetes_ingress_v1.default[0].metadata[0].annotations, "alb.ingress.kubernetes.io/group.name", null), null)
+  scheme_annotation     = try(lookup(kubernetes_ingress_v1.default[0].metadata[0].annotations, "alb.ingress.kubernetes.io/scheme", null), null)
+  class_annotation      = try(lookup(kubernetes_ingress_v1.default[0].metadata[0].annotations, "kubernetes.io/ingress.class", null), null)
   load_balancer_name    = one(data.aws_lb.default[*].name)
   host                  = join(".", [module.this.environment, module.dns_delegated.outputs.default_domain_name])
 }
