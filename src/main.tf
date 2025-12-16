@@ -11,7 +11,21 @@ locals {
 
   waf_enabled = module.this.enabled && var.waf_enabled
 
+  tls_enabled = module.this.enabled && var.tls_enabled
+
   waf_acl_arn = local.waf_enabled ? tomap({ "alb.ingress.kubernetes.io/wafv2-acl-arn" = module.waf.outputs.acl.arn }) : {}
+
+  ssl_redirect_annotations = local.tls_enabled ? {
+    "alb.ingress.kubernetes.io/ssl-redirect" = "443"
+    "alb.ingress.kubernetes.io/actions.ssl-redirect" = jsonencode({
+      Type = "redirect"
+      RedirectConfig = {
+        Protocol   = "HTTPS"
+        Port       = "443"
+        StatusCode = "HTTP_301"
+      }
+    })
+  } : {}
 
   alb_logging_annotation = var.alb_access_logs_enabled ? tomap({
     "alb.ingress.kubernetes.io/load-balancer-attributes" = "access_logs.s3.enabled=true,access_logs.s3.bucket=${var.alb_access_logs_s3_bucket_name},access_logs.s3.prefix=${var.alb_access_logs_s3_bucket_prefix}",
@@ -39,7 +53,7 @@ locals {
   scheme_annotation     = try(lookup(kubernetes_ingress_v1.default[0].metadata[0].annotations, "alb.ingress.kubernetes.io/scheme", null), null)
   class_annotation      = try(lookup(kubernetes_ingress_v1.default[0].metadata[0].annotations, "kubernetes.io/ingress.class", null), null)
   load_balancer_name    = one(data.aws_lb.default[*].name)
-  host                  = join(".", [module.this.environment, module.dns_delegated.outputs.default_domain_name])
+  host                  = var.host != "" ? var.host : (var.dns_enabled ? join(".", [module.this.environment, module.dns_delegated[0].outputs.default_domain_name]) : "${module.this.environment}.local")
 }
 
 resource "kubernetes_namespace" "default" {
@@ -98,21 +112,13 @@ resource "kubernetes_ingress_v1" "default" {
     annotations = merge(
       local.waf_acl_arn,
       local.alb_logging_annotation,
+      local.ssl_redirect_annotations,
       {
         # The annotation "alb.ingress.kubernetes.io/certificate-arn" isn't needed due to the aws lb controller's
         # auto discovery using the host
-        "alb.ingress.kubernetes.io/load-balancer-name" = module.load_balancer_name.id
-        "alb.ingress.kubernetes.io/group.name"         = local.ingress_controller_group_name
-        "external-dns.alpha.kubernetes.io/hostname"    = local.host
-        "alb.ingress.kubernetes.io/ssl-redirect"       = "443"
-        "alb.ingress.kubernetes.io/actions.ssl-redirect" = jsonencode({
-          Type = "redirect"
-          RedirectConfig = {
-            Protocol   = "HTTPS"
-            Port       = "443"
-            StatusCode = "HTTP_301"
-          }
-        })
+        "alb.ingress.kubernetes.io/load-balancer-name"                          = module.load_balancer_name.id
+        "alb.ingress.kubernetes.io/group.name"                                  = local.ingress_controller_group_name
+        "external-dns.alpha.kubernetes.io/hostname"                             = local.host
         "alb.ingress.kubernetes.io/tags"                                        = local.kube_tags
         "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = local.kube_tags
         "alb.ingress.kubernetes.io/actions.${local.default_rule}" = jsonencode({
@@ -160,8 +166,11 @@ resource "kubernetes_ingress_v1" "default" {
       }
     }
 
-    tls {
-      hosts = [local.host]
+    dynamic "tls" {
+      for_each = local.tls_enabled ? [true] : []
+      content {
+        hosts = [local.host]
+      }
     }
   }
 
