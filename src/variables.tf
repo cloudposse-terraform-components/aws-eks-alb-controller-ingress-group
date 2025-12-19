@@ -51,6 +51,18 @@ variable "dns_delegated_component_name" {
   default     = "dns-delegated"
 }
 
+variable "dns_enabled" {
+  type        = bool
+  description = "Whether to use dns_delegated component for hostname. Set to false when DNS is not configured."
+  default     = true
+}
+
+variable "host" {
+  type        = string
+  description = "Hostname override. When set, this takes precedence over dns_delegated lookup."
+  default     = ""
+}
+
 variable "waf_component_name" {
   type        = string
   description = "The name of the `waf` component"
@@ -140,4 +152,10 @@ variable "alb_group_name" {
   type        = string
   description = "The name of the alb group"
   default     = null
+}
+
+variable "tls_enabled" {
+  type        = bool
+  description = "Whether to enable TLS on the ingress. Requires an ACM certificate for the host."
+  default     = true
 }
