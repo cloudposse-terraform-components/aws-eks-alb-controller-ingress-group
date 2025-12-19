@@ -154,6 +154,7 @@ components:
 | <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br/>Map of maps. Keys are names of descriptors. Values are maps of the form<br/>`{<br/>  format = string<br/>  labels = list(string)<br/>}`<br/>(Type is `any` so the map values can later be enhanced to provide additional options.)<br/>`format` is a Terraform format string to be passed to the `format()` function.<br/>`labels` is a list of labels, in order, to pass to `format()` function.<br/>Label values will be normalized before being passed to `format()` so they will be<br/>identical to how they appear in `id`.<br/>Default is `{}` (`descriptors` output will be empty). | `any` | `{}` | no |
 | <a name="input_dns_delegated_component_name"></a> [dns\_delegated\_component\_name](#input\_dns\_delegated\_component\_name) | The name of the `dns_delegated` component | `string` | `"dns-delegated"` | no |
 | <a name="input_dns_delegated_environment_name"></a> [dns\_delegated\_environment\_name](#input\_dns\_delegated\_environment\_name) | Global environment name | `string` | `"gbl"` | no |
+| <a name="input_dns_enabled"></a> [dns\_enabled](#input\_dns\_enabled) | Whether to use dns\_delegated component for hostname. Set to false when DNS is not configured. | `bool` | `true` | no |
 | <a name="input_eks_component_name"></a> [eks\_component\_name](#input\_eks\_component\_name) | The name of the `eks` component | `string` | `"eks/cluster"` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
@@ -162,6 +163,7 @@ components:
 | <a name="input_fixed_response_vars"></a> [fixed\_response\_vars](#input\_fixed\_response\_vars) | The templatefile vars to use for the fixed response template | `map(any)` | <pre>{<br/>  "email": "hello@cloudposse.com"<br/>}</pre> | no |
 | <a name="input_global_accelerator_component_name"></a> [global\_accelerator\_component\_name](#input\_global\_accelerator\_component\_name) | The name of the `global_accelerator` component | `string` | `"global-accelerator"` | no |
 | <a name="input_global_accelerator_enabled"></a> [global\_accelerator\_enabled](#input\_global\_accelerator\_enabled) | Whether or not Global Accelerator Endpoint Group should be provisioned for the load balancer | `bool` | `false` | no |
+| <a name="input_host"></a> [host](#input\_host) | Hostname override. When set, this takes precedence over dns\_delegated lookup. | `string` | `""` | no |
 | <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br/>Set to `0` for unlimited length.<br/>Set to `null` for keep the existing setting, which defaults to `0`.<br/>Does not affect `id_full`. | `number` | `null` | no |
 | <a name="input_kube_data_auth_enabled"></a> [kube\_data\_auth\_enabled](#input\_kube\_data\_auth\_enabled) | If `true`, use an `aws_eks_cluster_auth` data source to authenticate to the EKS cluster.<br/>Disabled by `kubeconfig_file_enabled` or `kube_exec_auth_enabled`. | `bool` | `false` | no |
 | <a name="input_kube_exec_auth_aws_profile"></a> [kube\_exec\_auth\_aws\_profile](#input\_kube\_exec\_auth\_aws\_profile) | The AWS config profile for `aws eks get-token` to use | `string` | `""` | no |
@@ -188,6 +190,7 @@ components:
 | <a name="input_stage"></a> [stage](#input\_stage) | ID element. Usually used to indicate role, e.g. 'prod', 'staging', 'source', 'build', 'test', 'deploy', 'release' | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Additional tags (e.g. `{'BusinessUnit': 'XYZ'}`).<br/>Neither the tag keys nor the tag values will be modified by this module. | `map(string)` | `{}` | no |
 | <a name="input_tenant"></a> [tenant](#input\_tenant) | ID element \_(Rarely used, not included by default)\_. A customer identifier, indicating who this instance of a resource is for | `string` | `null` | no |
+| <a name="input_tls_enabled"></a> [tls\_enabled](#input\_tls\_enabled) | Whether to enable TLS on the ingress. Requires an ACM certificate for the host. | `bool` | `true` | no |
 | <a name="input_waf_component_name"></a> [waf\_component\_name](#input\_waf\_component\_name) | The name of the `waf` component | `string` | `"waf"` | no |
 | <a name="input_waf_enabled"></a> [waf\_enabled](#input\_waf\_enabled) | Whether or not WAF ACL annotation should be provisioned for the load balancer | `bool` | `false` | no |
 
