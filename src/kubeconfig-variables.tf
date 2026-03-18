@@ -94,7 +94,7 @@ locals {
   ] : []
 
   kube_exec_auth_role_arn = var.kube_exec_auth_role_arn
-  exec_role = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled ? [
+  exec_role = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled && local.kube_exec_auth_role_arn != "" ? [
     "--role-arn", local.kube_exec_auth_role_arn
   ] : []
 

@@ -10,6 +10,21 @@ variable "eks" {
   description = "EKS cluster outputs. When set, bypasses remote-state lookup of eks/cluster."
   default     = null
   nullable    = true
+
+  validation {
+    condition     = var.eks == null || try(var.eks.eks_cluster_id, null) != null && try(var.eks.eks_cluster_id, "") != ""
+    error_message = "When 'eks' is provided, 'eks_cluster_id' must be a non-empty string."
+  }
+
+  validation {
+    condition     = var.eks == null || try(var.eks.eks_cluster_endpoint, null) != null && try(var.eks.eks_cluster_endpoint, "") != ""
+    error_message = "When 'eks' is provided, 'eks_cluster_endpoint' must be a non-empty string."
+  }
+
+  validation {
+    condition     = var.eks == null || try(var.eks.eks_cluster_certificate_authority_data, null) != null && try(var.eks.eks_cluster_certificate_authority_data, "") != ""
+    error_message = "When 'eks' is provided, 'eks_cluster_certificate_authority_data' must be a non-empty string."
+  }
 }
 
 module "dns_delegated" {
