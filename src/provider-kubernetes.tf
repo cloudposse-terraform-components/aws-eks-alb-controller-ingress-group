@@ -1,10 +1,6 @@
 ##################
 #
-# Variables and locals for Kubernetes provider configuration.
-# Separated from provider-kubernetes.tf so the provider file can be safely replaced
-# by an Atmos generate block without losing variable declarations.
-#
-# It depends on module.eks to provide the EKS cluster information.
+# This file is a drop-in to provide a helm provider.
 #
 # All the following variables are just about configuring the Kubernetes provider
 # to be able to modify EKS cluster. The reason there are so many options is
@@ -93,17 +89,38 @@ locals {
     "--profile", var.kube_exec_auth_aws_profile
   ] : []
 
-  kube_exec_auth_role_arn = var.kube_exec_auth_role_arn
-  exec_role = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled && local.kube_exec_auth_role_arn != "" ? [
+  kube_exec_auth_role_arn = var.kube_exec_auth_role_arn != "" ? var.kube_exec_auth_role_arn : try(module.iam_roles.terraform_role_arn, "")
+  exec_role = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled ? [
     "--role-arn", local.kube_exec_auth_role_arn
   ] : []
 
-  certificate_authority_data = local.kubeconfig_file_enabled ? null : try(module.eks.outputs.eks_cluster_certificate_authority_data, null)
-  eks_cluster_id             = coalesce(try(module.eks.outputs.eks_cluster_id, ""), "missing")
-  eks_cluster_endpoint       = local.kubeconfig_file_enabled ? null : try(module.eks.outputs.eks_cluster_endpoint, "")
+  certificate_authority_data = module.eks.outputs.eks_cluster_certificate_authority_data
+  eks_cluster_id             = module.eks.outputs.eks_cluster_id
+  eks_cluster_endpoint       = module.eks.outputs.eks_cluster_endpoint
 }
 
 data "aws_eks_cluster_auth" "eks" {
   count = local.kube_data_auth_enabled ? 1 : 0
   name  = local.eks_cluster_id
+}
+
+provider "kubernetes" {
+  host                   = local.eks_cluster_endpoint
+  cluster_ca_certificate = base64decode(local.certificate_authority_data)
+  token                  = local.kube_data_auth_enabled ? data.aws_eks_cluster_auth.eks[0].token : null
+  # The Kubernetes provider will use information from KUBECONFIG if it exists, but if the default cluster
+  # in KUBECONFIG is some other cluster, this will cause problems, so we override it always.
+  config_path    = local.kubeconfig_file_enabled ? var.kubeconfig_file : ""
+  config_context = var.kubeconfig_context
+
+  dynamic "exec" {
+    for_each = local.kube_exec_auth_enabled ? ["exec"] : []
+    content {
+      api_version = local.kubeconfig_exec_auth_api_version
+      command     = "aws"
+      args = concat(local.exec_profile, [
+        "eks", "get-token", "--cluster-name", local.eks_cluster_id
+      ], local.exec_role)
+    }
+  }
 }
